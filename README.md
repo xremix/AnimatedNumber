@@ -44,7 +44,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            AnimatedNumber($value, animation: .linear(duration: 1.5), formatter: formatter)
+            AnimatedNumber($value, formatter: formatter, animation: .linear(duration: 1.5))
                 .font(.largeTitle)
                 .padding(.bottom, 50)
             

@@ -112,10 +112,4 @@ fileprivate struct AnimatedNumberModifier: AnimatableModifier {
     private var isAnimating: Bool {
         percentage != 0
     }
-
-    public static func ease(in inEase: Double = 0.1, out outEase: Double = 1.0, duration: Double = 0.7)-> Animation{
-         let controlPoint2X = min(max(inEase, 0.1), 1.0) // Ensure strength stays within [0.1, 1.0]
-         let controlPoint2Y = min(max(outEase, 0.1), 1.0) // Ensure animationEndStrength stays within [0.1, 1.0]
-        return .timingCurve(0.0, 0.0, controlPoint2X, controlPoint2Y, duration: duration)
-    }
 }
