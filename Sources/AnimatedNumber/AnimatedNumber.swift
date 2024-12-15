@@ -8,22 +8,18 @@ import SwiftUI
 @available(iOS 14.0, OSX 11.0, *)
 public struct AnimatedNumber: View {
     @State private var destinationValue: Double
-    private let duration: Double
     private let formatter: Formatter
-    private let animationStartStrength: Double
-    private let animationEndStrength: Double
+    private let animation: Animation
     @State private var originalValue: Double
     @State private var percentage = Double(0)
     @Binding private var value: Double
     
-    public init(_ value: Binding<Double>, duration: Double = 0.7, formatter: Formatter = NumberFormatter(), animationStartStrength: Double = 1, animationEndStrength: Double = 1) {
+    public init(_ value: Binding<Double>, formatter: Formatter = NumberFormatter(), animation: Animation = .linear(duration: 0.7)) {
         _value = value
         _originalValue = .init(initialValue: value.wrappedValue)
         _destinationValue = .init(initialValue: value.wrappedValue)
-        self.duration = duration
         self.formatter = formatter
-        self.animationStartStrength = animationStartStrength
-        self.animationEndStrength = animationEndStrength
+        self.animation = animation
     }
     
     public var body: some View {
@@ -33,9 +29,7 @@ public struct AnimatedNumber: View {
                     value: $value,
                     originalValue: $originalValue,
                     destinationValue: $destinationValue,
-                    duration: duration,
-                    animationStartStrength: animationStartStrength,
-                    animationEndStrength: animationEndStrength,
+                    animation: animation,
                     percentage: $percentage,
                     formatter: formatter
                 )
@@ -53,18 +47,14 @@ fileprivate struct AnimatedNumberModifier: AnimatableModifier {
     private let formatter: Formatter
     @Binding private var originalValue: Double
     @Binding private var percentage: Double
-    private var duration: Double
-    private let animationStartStrength: Double
-    private let animationEndStrength: Double
+    private let animation: Animation
     @Binding private var value: Double
     
-    init(value: Binding<Double>, originalValue: Binding<Double>, destinationValue: Binding<Double>, duration: Double, animationStartStrength: Double, animationEndStrength: Double, percentage: Binding<Double>, formatter: Formatter) {
+    init(value: Binding<Double>, originalValue: Binding<Double>, destinationValue: Binding<Double>, animation: Animation, percentage: Binding<Double>, formatter: Formatter) {
         _value = value
         _originalValue = originalValue
         _destinationValue = destinationValue
-        self.duration = duration
-        self.animationStartStrength = animationStartStrength
-        self.animationEndStrength = animationEndStrength
+        self.animation = animation
         _percentage = percentage
         animationPercentage = percentage.wrappedValue
         self.formatter = formatter
@@ -101,14 +91,14 @@ fileprivate struct AnimatedNumberModifier: AnimatableModifier {
                         originalValue = animatedValue
                         destinationValue = value
 
-                        withAnimation(customEaseOutAnimation) {
+                        withAnimation(animation) {
                             percentage = 1
                         }
                     }
                 } else {
                     destinationValue = value
                     
-                    withAnimation(customEaseOutAnimation) {
+                    withAnimation(animation) {
                         percentage = 1
                     }
                 }
@@ -123,9 +113,9 @@ fileprivate struct AnimatedNumberModifier: AnimatableModifier {
         percentage != 0
     }
 
-    private var customEaseOutAnimation: Animation {
-        let controlPoint2X = min(max(animationStartStrength, 0.1), 1.0) // Ensure strength stays within [0.1, 1.0]
-        let controlPoint2Y = min(max(animationEndStrength, 0.1), 1.0) // Ensure animationEndStrength stays within [0.1, 1.0]
+    public static func ease(in inEase: Double = 0.1, out outEase: Double = 1.0, duration: Double = 0.7)-> Animation{
+         let controlPoint2X = min(max(inEase, 0.1), 1.0) // Ensure strength stays within [0.1, 1.0]
+         let controlPoint2Y = min(max(outEase, 0.1), 1.0) // Ensure animationEndStrength stays within [0.1, 1.0]
         return .timingCurve(0.0, 0.0, controlPoint2X, controlPoint2Y, duration: duration)
     }
 }
